@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tic Tac Toe - AI vs Human</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            justify-content: center;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            cursor: pointer;
+        }
+        .cell:hover {
+            background-color: #ddd;
+        }
+        #play-again {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Tic Tac Toe - You (X) vs AI (O)</h1>
+<div id="board"></div>
+<p id="result"></p>
+<button id="play-again" onclick="resetGame()">Play Again</button>
+
+<script>
+    let board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+    const player = 'X';
+    const ai = 'O';
+
+    const winCombos = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+    ];
+
+    const boardDiv = document.getElementById('board');
+    const resultP = document.getElementById('result');
+    const playAgainBtn = document.getElementById('play-again');
+
+    function renderBoard() {
+        boardDiv.innerHTML = '';
+        board.forEach((cell, idx) => {
+            const cellDiv = document.createElement('div');
+            cellDiv.classList.add('cell');
+            cellDiv.textContent = cell;
+            cellDiv.addEventListener('click', () => playerMove(idx));
+            boardDiv.appendChild(cellDiv);
+        });
+    }
+
+    function playerMove(index) {
+        if (board[index] !== ' ' || checkWinner(board)) return;
+        board[index] = player;
+        if (checkWinner(board)) {
+            renderBoard();
+            resultP.textContent = "You win!";
+            playAgainBtn.style.display = 'inline-block';
+            return;
+        }
+        if (isDraw()) {
+            renderBoard();
+            resultP.textContent = "It's a draw!";
+            playAgainBtn.style.display = 'inline-block';
+            return;
+        }
+        aiMove();
+    }
+
+    function aiMove() {
+        const move = bestMove();
+        if (move !== -1) board[move] = ai;
+        if (checkWinner(board)) {
+            renderBoard();
+            resultP.textContent = "AI wins!";
+            playAgainBtn.style.display = 'inline-block';
+            return;
+        }
+        if (isDraw()) {
+            renderBoard();
+            resultP.textContent = "It's a draw!";
+            playAgainBtn.style.display = 'inline-block';
+            return;
+        }
+        renderBoard();
+    }
+
+    function bestMove() {
+        let bestScore = -Infinity;
+        let move = -1;
+        for (let i = 0; i < 9; i++) {
+            if (board[i] === ' ') {
+                board[i] = ai;
+                let score = minimax(board, 0, false);
+                board[i] = ' ';
+                if (score > bestScore) {
+                    bestScore = score;
+                    move = i;
+                }
+            }
+        }
+        return move;
+    }
+
+    function minimax(newBoard, depth, isMaximizing) {
+        let winner = checkWinner(newBoard);
+        if (winner === player) return -10 + depth;
+        if (winner === ai) return 10 - depth;
+        if (isDraw()) return 0;
+
+        if (isMaximizing) {
+            let bestScore = -Infinity;
+            for (let i = 0; i < 9; i++) {
+                if (newBoard[i] === ' ') {
+                    newBoard[i] = ai;
+                    let score = minimax(newBoard, depth + 1, false);
+                    newBoard[i] = ' ';
+                    bestScore = Math.max(score, bestScore);
+                }
+            }
+            return bestScore;
+        } else {
+            let bestScore = Infinity;
+            for (let i = 0; i < 9; i++) {
+                if (newBoard[i] === ' ') {
+                    newBoard[i] = player;
+                    let score = minimax(newBoard, depth + 1, true);
+                    newBoard[i] = ' ';
+                    bestScore = Math.min(score, bestScore);
+                }
+            }
+            return bestScore;
+        }
+    }
+
+    function checkWinner(b) {
+        for (let [a, b1, c] of winCombos) {
+            if (b[a] === b[b1] && b[b1] === b[c] && b[a] !== ' ') {
+                return b[a];
+            }
+        }
+        return null;
+    }
+
+    function isDraw() {
+        return board.every(cell => cell !== ' ');
+    }
+
+    function resetGame() {
+        board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+        resultP.textContent = '';
+        playAgainBtn.style.display = 'none';
+        renderBoard();
+    }
+
+    renderBoard();
+</script>
+
+</body>
+</html>
