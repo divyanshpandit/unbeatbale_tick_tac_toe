@@ -13,7 +13,7 @@ This is a simple yet **unbeatable Tic Tac Toe game** that you can play directly 
 ## How to Play
 
 1. **Download or clone** this repository.
-2. Open the `index.html` file (or `tic_tac_toe.html` if renamed) in any web browser.
+2. Open the `index.html` file  in any web browser.
 3. Click on any empty cell to make your move.
 4. The AI will instantly respond with its best possible move.
 5. At the end of each game, the result will be displayed with a **Play Again** button.
